@@ -53,10 +53,37 @@ void PWM_Init(){
 	LPC_PWM1->LER = 0x3;
 }
 
+void changePwmBasedOnTemp(int32_t t)
+{
+	// power level 3 -> niebieskie rgb
+	if(t >= 265)
+	{
+		rgb_setLeds(0x06);
+	    LPC_PWM1->MR1 = 1000;
+	    LPC_PWM1->LER = 0x2;
+	}
+
+	// power level 2 -> zielone rgb
+	if (t >= 245 && t < 265)
+	{
+	    rgb_setLeds(0x04);
+	    LPC_PWM1->MR1 = 750;
+	    LPC_PWM1->LER = 0x2;
+	}
+
+	// power level 1 -> zolty rgb
+	if(t<245)
+	{
+	    rgb_setLeds(0x05);
+	    LPC_PWM1->MR1 = 400;
+	    LPC_PWM1->LER = 0x2;
+	}
+}
+
 int main (void)
 {
 
-    int32_t t = 0;
+    int32_t temp = 0;
     uint32_t lux = 0;
 
     init_i2c();
@@ -83,8 +110,8 @@ int main (void)
 
     oled_clearScreen(OLED_COLOR_WHITE);
 
-    oled_putString(1,1,  (uint8_t*)"Temp : ", OLED_COLOR_BLACK, OLED_COLOR_WHITE);
-    oled_putString(1, 20, (uint8_t*)"Swiat : ", OLED_COLOR_BLACK, OLED_COLOR_WHITE );
+    oled_putString(1, 1 , (uint8_t*)"Temp   : ", OLED_COLOR_BLACK, OLED_COLOR_WHITE);
+    oled_putString(1, 20, (uint8_t*)"Swiatlo: ", OLED_COLOR_BLACK, OLED_COLOR_WHITE );
 
 
 
@@ -94,15 +121,14 @@ int main (void)
         /* Temperature */
     	char str[10];
     	char str2[10];
-    	t = temp_read();
-    	sprintf(str,"%.1f", t/10.0);
+    	temp = temp_read();
+    	sprintf(str,"%.1f", temp/10.0);
 
 
         /* light */
         lux = light_read();
         sprintf(str2, "%3d", lux);
 
-       // intToString(t, buf, 10, 10);
         oled_fillRect((1+9*6),1, 80, 8, OLED_COLOR_WHITE);
         oled_putString((1+9*6),1, str, OLED_COLOR_BLACK, OLED_COLOR_WHITE);
         oled_putString((1+9*6),20, str2, OLED_COLOR_BLACK, OLED_COLOR_WHITE);
@@ -110,30 +136,8 @@ int main (void)
         uint16_t ledOn = 0;
         uint16_t ledOff = 0;
 
-          // power level 3 -> niebieskie rgb
-          if(t >= 265)
-          {
-        	  rgb_setLeds(0x06);
-        	  LPC_PWM1->MR1 = 1000;
-        	  LPC_PWM1->LER = 0x2;
-          }
 
-          // power level 2 -> zielone rgb
-          if (t >= 245 && t < 265)
-          {
-        	  rgb_setLeds(0x04);
-        	  LPC_PWM1->MR1 = 750;
-        	  LPC_PWM1->LER = 0x2;
-          }
-
-          // power level 1 -> zolty rgb
-          if(t<245)
-          {
-        	   rgb_setLeds(0x05);
-        	   LPC_PWM1->MR1 = 400;
-        	   LPC_PWM1->LER = 0x2;
-
-          }
+        changePwmBasedOnTemp(temp);
 
           if(lux < 10) {
         	  oled_inverse(0);
@@ -146,13 +150,4 @@ int main (void)
         Timer0_Wait(200);
     }
 
-}
-
-void check_failed(uint8_t *file, uint32_t line)
-{
-	/* User can add his own implementation to report the file name and line number,
-	 ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-
-	/* Infinite loop */
-	while(1);
 }
