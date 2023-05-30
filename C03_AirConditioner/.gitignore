@@ -59,3 +59,4 @@ C03_AirConditioner/.metadata
 *.dump
 *.ctu-info
 *cppcheck
+*.log
