@@ -1,8 +1,6 @@
 #include "lpc17xx_pinsel.h"
 #include "lpc17xx_i2c.h"
 #include "lpc17xx_gpio.h"
-#include "lpc17xx_ssp.h"
-#include "lpc17xx_adc.h"
 #include "lpc17xx_timer.h"
 #include "light.h"
 #include "oled.h"
@@ -10,7 +8,6 @@
 #include "rgb.h"
 
 static uint32_t msTicks = 0;
-static uint8_t buf[10];
 
 
 void SysTick_Handler(void) {
@@ -80,6 +77,18 @@ void changePwmBasedOnTemp(int32_t t)
 	}
 }
 
+void inverseColorsBasedOnLux(uint32_t l)
+{
+	if(l < 10)
+	{
+		oled_inverse(0);
+	}
+	else
+	{
+		oled_inverse(1);
+	}
+}
+
 int main (void)
 {
 
@@ -113,14 +122,14 @@ int main (void)
     oled_putString(1, 1 , (uint8_t*)"Temp   : ", OLED_COLOR_BLACK, OLED_COLOR_WHITE);
     oled_putString(1, 20, (uint8_t*)"Swiatlo: ", OLED_COLOR_BLACK, OLED_COLOR_WHITE );
 
+    char str[10];
+    char str2[10];
 
 
     while(1) {
 
 
         /* Temperature */
-    	char str[10];
-    	char str2[10];
     	temp = temp_read();
     	sprintf(str,"%.1f", temp/10.0);
 
@@ -139,12 +148,8 @@ int main (void)
 
         changePwmBasedOnTemp(temp);
 
-          if(lux < 10) {
-        	  oled_inverse(0);
-          }
-          else{
-        	  oled_inverse(1);
-          }
+        inverseColorsBasedOnLux(lux);
+
 
         /* delay */
         Timer0_Wait(200);
