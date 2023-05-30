@@ -127,12 +127,9 @@ int main (void)
 
 
     while(1) {
-
-
         /* Temperature */
     	temp = temp_read();
     	sprintf(str,"%.1f", temp/10.0);
-
 
         /* light */
         lux = light_read();
@@ -145,11 +142,9 @@ int main (void)
         uint16_t ledOn = 0;
         uint16_t ledOff = 0;
 
-
         changePwmBasedOnTemp(temp);
 
         inverseColorsBasedOnLux(lux);
-
 
         /* delay */
         Timer0_Wait(200);
