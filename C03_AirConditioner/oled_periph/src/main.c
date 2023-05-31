@@ -8,7 +8,7 @@
 #include "temp.h"
 #include "rgb.h"
 
-static uint32_t msTicks = 0;
+static uint32_t msTicks = 0;  /* Initialize the static variable msTicks to 0 */
 
 /*!
 
