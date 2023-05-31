@@ -10,16 +10,34 @@
 
 static uint32_t msTicks = 0;
 
+/*!
 
+@brief SysTick interrupt handler.
+This function is the interrupt handler for the SysTick timer. It increments the value of the system tick counter.
+*/
 void SysTick_Handler(void) {
     msTicks++;
 }
 
+/*!
+
+@brief Returns the value of the system tick counter.
+This function returns the current value of the system tick counter, which represents the elapsed time in milliseconds since the system started.
+@return The value of the system tick counter.
+*/
 static uint32_t getTicks(void)
 {
     return msTicks;
 }
 
+/*!
+
+@brief Initializes the SSP (Synchronous Serial Port) module.
+This function initializes the SSP peripheral by configuring the necessary pins, setting up the SSP configuration structure, and enabling the SSP peripheral.
+@param None
+@return None
+@side effects None
+*/
 static void init_ssp(void)
 {
 	SSP_CFG_Type SSP_ConfigStruct;
@@ -57,6 +75,14 @@ static void init_ssp(void)
 
 }
 
+/*!
+
+@brief Initializes the I2C (Inter-Integrated Circuit) module.
+This function initializes the I2C peripheral by configuring the necessary pins and enabling the I2C peripheral.
+@param None
+@return None
+@side effects None
+*/
 static void init_i2c(void)
 {
 	PINSEL_CFG_Type PinCfg;
@@ -76,6 +102,14 @@ static void init_i2c(void)
 	I2C_Cmd(LPC_I2C2, ENABLE);
 }
 
+/*!
+
+@brief Initializes the PWM (Pulse Width Modulation) module.
+This function initializes the PWM peripheral by setting up the necessary configuration registers and enabling the PWM peripheral.
+@param None
+@return None
+@side effects None
+*/
 void PWM_Init(){
 	LPC_SC->PCONP |= (1<<6);
 	LPC_PWM1->PR = 0x18;
@@ -88,9 +122,17 @@ void PWM_Init(){
 	LPC_PWM1->LER = 0x3;
 }
 
+/*!
+
+@brief Changes the PWM output and LED color based on the temperature value.
+This function adjusts the PWM output and LED color based on the temperature value. It sets different power levels and corresponding PWM duty cycles, as well as LED colors, based on temperature ranges.
+@param t The temperature value.
+@return None
+@side effects Changes the PWM output and LED colors.
+*/
 void changePwmBasedOnTemp(int32_t t)
 {
-	// power level 3 -> niebieskie rgb
+	// power level 3 -> blue rgb
 	if(t >= 265)
 	{
 		rgb_setLeds(0x06);
@@ -98,7 +140,7 @@ void changePwmBasedOnTemp(int32_t t)
 	    LPC_PWM1->LER = 0x2;
 	}
 
-	// power level 2 -> zielone rgb
+	// power level 2 -> green rgb
 	if (t >= 245 && t < 265)
 	{
 	    rgb_setLeds(0x04);
@@ -106,7 +148,7 @@ void changePwmBasedOnTemp(int32_t t)
 	    LPC_PWM1->LER = 0x2;
 	}
 
-	// power level 1 -> zolty rgb
+	// power level 1 -> yellow rgb
 	if(t<245)
 	{
 	    rgb_setLeds(0x05);
@@ -115,15 +157,23 @@ void changePwmBasedOnTemp(int32_t t)
 	}
 }
 
+/*!
+
+@brief Inverses the colors on the OLED display based on the lux value.
+This function inverses the colors on the OLED display based on the lux value. If the lux value is less than 10, it sets the OLED display to non-inverse mode. Otherwise, it sets the OLED display to inverse mode.
+@param l The lux value.
+@return None
+@side effects Changes the display color inversion on the OLED display.
+*/
 void inverseColorsBasedOnLux(uint32_t l)
 {
 	if(l < 10)
 	{
-		oled_inverse(0);
+		oled_inverse(0); /*text - white, background - black */
 	}
 	else
 	{
-		oled_inverse(1);
+		oled_inverse(1); /*text - black, background - white */
 	}
 }
 
