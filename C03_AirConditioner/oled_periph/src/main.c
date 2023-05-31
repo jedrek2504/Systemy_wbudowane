@@ -229,9 +229,6 @@ int main (void)
         oled_putString((1+9*6),1, str, OLED_COLOR_BLACK, OLED_COLOR_WHITE);   /* Display new temperature value */
         oled_putString((1+9*6),20, str2, OLED_COLOR_BLACK, OLED_COLOR_WHITE); /* Display light value */
 
-        uint16_t ledOn = 0;
-        uint16_t ledOff = 0;
-
         changePwmBasedOnTemp(temp);    /* Adjust PWM and RGB-LED based on temperature value */
 
         inverseColorsBasedOnLux(lux);  /* Invert colors on OLED based on light value */
