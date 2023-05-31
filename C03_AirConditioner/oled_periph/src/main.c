@@ -180,19 +180,19 @@ void inverseColorsBasedOnLux(uint32_t l)
 int main (void)
 {
 
-    int32_t temp = 0;
-    uint32_t lux = 0;
+    int32_t temp = 0;        /* Variable to store temperature reading */
+    uint32_t lux = 0;        /* Variable to store light reading */
 
-    init_i2c();
-	init_ssp();
-    rgb_init();
-    oled_init();
-    light_init();
-    temp_init (&getTicks);
-    PWM_Init();
-
+    init_i2c();              /* Initialize I2C communication */
+	init_ssp();              /* Initialize SSP (SPI) communication */
+    rgb_init();              /* Initialize RGB LED */
+    oled_init();             /* Initialize OLED display */
+    light_init();            /* Initialize light sensor */
+    temp_init (&getTicks);   /* Initialize temperature sensor */
+    PWM_Init();              /* Initialize PWM */
+ 
 	if (SysTick_Config(SystemCoreClock / 1000)) {
-		    while (1);  // Capture error
+		    while (1);  /* Capture error if SysTick configuration fails */
 	}
 
     /*
@@ -203,40 +203,40 @@ int main (void)
 	LPC_GPIO2->FIOPIN |=(1<<10);
 
 
-    light_enable();
-    light_setRange(LIGHT_RANGE_4000);
+    light_enable();                      /* Enable light sensor */
+    light_setRange(LIGHT_RANGE_4000);    /* Set light range to 4000 */
 
-    oled_clearScreen(OLED_COLOR_WHITE);
+    oled_clearScreen(OLED_COLOR_WHITE);  /* Clear OLED screen */
 
-    oled_putString(1, 1 , (uint8_t*)"Temp   : ", OLED_COLOR_BLACK, OLED_COLOR_WHITE);
-    oled_putString(1, 20, (uint8_t*)"Swiatlo: ", OLED_COLOR_BLACK, OLED_COLOR_WHITE );
+    oled_putString(1, 1 , (uint8_t*)"Temp   : ", OLED_COLOR_BLACK, OLED_COLOR_WHITE);   /* Display temperature label */
+    oled_putString(1, 20, (uint8_t*)"Swiatlo: ", OLED_COLOR_BLACK, OLED_COLOR_WHITE );  /* Display light label */
 
-    char str[10];
-    char str2[10];
+    char str[10];   /* String variable to store temperature value */
+    char str2[10];  /* String variable to store light value */
 
 
     while(1) {
+		
         /* Temperature */
-    	temp = temp_read();
-    	sprintf(str,"%.1f", temp/10.0);
+    	temp = temp_read();              /* Read temperature value */
+    	sprintf(str,"%.1f", temp/10.0);  /* Convert temperature value to string */
 
         /* light */
-        lux = light_read();
-        sprintf(str2, "%3d", lux);
+        lux = light_read();              /* Read light value */
+        sprintf(str2, "%3d", lux);       /* Convert light value to string */
 
-        oled_fillRect((1+9*6),1, 80, 8, OLED_COLOR_WHITE);
-        oled_putString((1+9*6),1, str, OLED_COLOR_BLACK, OLED_COLOR_WHITE);
-        oled_putString((1+9*6),20, str2, OLED_COLOR_BLACK, OLED_COLOR_WHITE);
+        oled_fillRect((1+9*6),1, 80, 8, OLED_COLOR_WHITE);                    /* Clear previous temperature value on OLED screen */
+        oled_putString((1+9*6),1, str, OLED_COLOR_BLACK, OLED_COLOR_WHITE);   /* Display new temperature value */
+        oled_putString((1+9*6),20, str2, OLED_COLOR_BLACK, OLED_COLOR_WHITE); /* Display light value */
 
         uint16_t ledOn = 0;
         uint16_t ledOff = 0;
 
-        changePwmBasedOnTemp(temp);
+        changePwmBasedOnTemp(temp);    /* Adjust PWM and RGB-LED based on temperature value */
 
-        inverseColorsBasedOnLux(lux);
+        inverseColorsBasedOnLux(lux);  /* Invert colors on OLED based on light value */
 
-        /* delay */
-        Timer0_Wait(200);
+        Timer0_Wait(200);              /* Wait for 200 milliseconds */
     }
 
 }
